@@ -39,4 +39,13 @@ final class ThreadSafeSwiftTests: XCTestCase {
             }
         }
     }
+    
+    func testTryLockByDefault() throws {
+        @ThreadSafeSemaphore(lockState: .locked) var myInts: [Int] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        _myInts.withTryLock { value in
+            XCTFail("The Lock should be engaged by default, and it isn't!")
+        } _: {
+            XCTAssertTrue(true, "Everything is good")
+        }
+    }
 }

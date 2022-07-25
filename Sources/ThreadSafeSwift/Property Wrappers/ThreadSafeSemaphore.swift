@@ -10,11 +10,20 @@ import Foundation
 /**
   Enforces a `DispatchSemaphore` Lock against the given Value Type to ensure single-threaded access.
  - Author: Simon J. Stuart
- - Version: 1.1.0
+ - Version: 1.2.0
  */
 @propertyWrapper
 public struct ThreadSafeSemaphore<T> {
-    public var lock = DispatchSemaphore(value: 1)
+    
+    /**
+    Defines whether or not the Lock should be initialized in a Locked or Unlocked state.
+     */
+    public enum LockState {
+        case unlocked
+        case locked
+    }
+    
+    public var lock: DispatchSemaphore
     private var value: T
     
     public var wrappedValue: T {
@@ -58,9 +67,14 @@ public struct ThreadSafeSemaphore<T> {
         }
     }
     
-    public init(wrappedValue: T) {
-        lock.wait()
+    /**
+     Initializes a ThreadSafeSempahore-decorated Variable
+     - Parameters:
+        - wrappedValue: The Initial Value of the Variable
+        - lockState: Whether the Lock should be Locked or Unlocked initially
+     */
+    public init(wrappedValue: T, lockState: LockState = .unlocked) {
+        lock = DispatchSemaphore(value: lockState == .unlocked ? 1 : 0)
         value = wrappedValue
-        lock.signal()
     }
 }
